@@ -2,47 +2,33 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useFoods } from '@/hooks/useFoods';
+import { useFoodsContext } from '@/contexts/FoodsContext';
 import { Search, Bike, Lock } from 'lucide-react';
 
 export default function SearchBar() {
-  const { search, searchQuery } = useFoods();
-  const [localQuery, setLocalQuery] = useState(searchQuery);
+  const { search, searchQuery } = useFoodsContext();
+  const [localQuery, setLocalQuery] = useState('');
   const [deliveryMode, setDeliveryMode] = useState<'delivery' | 'pickup'>('delivery');
 
-  // Sync with the hook's searchQuery
+  // Initialize localQuery from searchQuery on mount
   useEffect(() => {
-    setLocalQuery(searchQuery);
-  }, [searchQuery]);
+    if (searchQuery) {
+      setLocalQuery(searchQuery);
+    }
+  }, []);
 
-  // Debounced search
+  // Debounced search - trigger search when localQuery changes
   useEffect(() => {
-    console.log('Local query changed:', localQuery);
-    console.log('Current search query in SearchBar:', searchQuery);
-    
     const timer = setTimeout(() => {
-      if (localQuery !== searchQuery) {
-        console.log('Triggering search with:', localQuery);
-        search(localQuery);
-      } else {
-        console.log('Search query unchanged, skipping search');
-      }
+      search(localQuery);
     }, 300);
     
     return () => {
-      console.log('Clearing search timeout');
       clearTimeout(timer);
     };
-  }, [localQuery, searchQuery, search]);
-  
-  // Force a re-render when searchQuery changes
-  useEffect(() => {
-    console.log('Search query prop changed in SearchBar:', searchQuery);
-    // This will force the component to re-render when the searchQuery prop changes
-  }, [searchQuery]);
+  }, [localQuery, search]);
 
   const handleFindMeal = () => {
-    console.log('Find meal clicked with:', localQuery);
     search(localQuery);
   };
 

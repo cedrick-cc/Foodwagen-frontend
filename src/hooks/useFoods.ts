@@ -1,5 +1,5 @@
 // src/hooks/useFoods.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { foodApi } from '@/lib/api';
 import type { Food } from '@/lib/types';
 import toast from 'react-hot-toast';
@@ -36,57 +36,26 @@ export function useFoods() {
 
   // Apply search filter whenever searchQuery or allFoods changes
   useEffect(() => {
-    console.log('Search effect triggered with query:', searchQuery);
-    console.log('Current allFoods count:', allFoods.length);
-    
-    // Create a new array reference to ensure React detects the change
-    const updateFilteredFoods = () => {
-      if (!searchQuery.trim()) {
-        console.log('No search query, showing all foods');
-        setFilteredFoods(prev => {
-          // Only update if the array content has actually changed
-          if (prev.length !== allFoods.length || 
-              prev.some((food, i) => food.id !== allFoods[i]?.id)) {
-            return [...allFoods];
-          }
-          return prev;
-        });
-        return;
-      }
+    if (!searchQuery.trim()) {
+      // No search query, show all foods
+      setFilteredFoods([...allFoods]);
+      return;
+    }
 
-      const query = searchQuery.toLowerCase().trim();
-      const filtered = allFoods.filter(food => {
-        const nameMatch = food.foodName?.toLowerCase().includes(query);
-        const restaurantMatch = food.restaurant?.name?.toLowerCase().includes(query);
-        console.log(`Food: ${food.foodName}, Name Match: ${nameMatch}, Restaurant Match: ${restaurantMatch}`);
-        return nameMatch || restaurantMatch;
-      });
-      
-      console.log(`Search "${searchQuery}": found ${filtered.length} of ${allFoods.length} foods`);
-      
-      setFilteredFoods(prev => {
-        // Only update if the filtered results have actually changed
-        if (prev.length !== filtered.length || 
-            prev.some((food, i) => food.id !== filtered[i]?.id)) {
-          return [...filtered];
-        }
-        return prev;
-      });
-      
-      if (filtered.length === 0 && searchQuery) {
-        console.log('No results found for query:', searchQuery);
-        toast.error(`No meals found for "${searchQuery}"`);
-      }
-    };
+    // Filter foods based on search query
+    const query = searchQuery.toLowerCase().trim();
+    const filtered = allFoods.filter(food => {
+      const nameMatch = food.foodName?.toLowerCase().includes(query);
+      const restaurantMatch = food.restaurant?.name?.toLowerCase().includes(query);
+      return nameMatch || restaurantMatch;
+    });
     
-    // Use requestAnimationFrame to ensure state updates are batched
-    requestAnimationFrame(updateFilteredFoods);
+    setFilteredFoods(filtered);
   }, [searchQuery, allFoods]);
 
-  const search = (query: string) => {
-    console.log('Setting search query:', query);
+  const search = useCallback((query: string) => {
     setSearchQuery(query);
-  };
+  }, []);
 
   const addFood = async (food: Omit<Food, 'id'>) => {
     try {
