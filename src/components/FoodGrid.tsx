@@ -1,7 +1,7 @@
 // src/components/FoodGrid.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FoodCard from './FoodCard';
 import AddEditModal from './AddEditModal';
 import DeleteModal from './DeleteModal';
@@ -16,6 +16,12 @@ export default function FoodGrid() {
   const [editingFood, setEditingFood] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Debug: Log when search query or foods change
+  useEffect(() => {
+    console.log('Search query changed:', searchQuery);
+    console.log('Filtered foods count:', foods.length);
+  }, [searchQuery, foods]);
+
   const handleEdit = (food: any) => {
     setEditingFood(food);
     setIsAddOpen(true);
@@ -26,6 +32,14 @@ export default function FoodGrid() {
   };
 
   const openAddModal = () => setIsAddOpen(true);
+
+  // Debug: Log when foods, search query, or loading state changes
+  useEffect(() => {
+    console.log('Foods updated:', foods.length, 'items');
+    console.log('Search query in FoodGrid:', searchQuery);
+    console.log('Loading state:', loading);
+    console.log('Current foods:', foods.map(f => f.foodName));
+  }, [foods, searchQuery, loading]);
 
   // Better empty state messaging
   const showEmptyState = !loading && foods.length === 0;

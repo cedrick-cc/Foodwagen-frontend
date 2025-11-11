@@ -36,23 +36,51 @@ export function useFoods() {
 
   // Apply search filter whenever searchQuery or allFoods changes
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredFoods(allFoods);
-      console.log('Showing all foods:', allFoods.length);
-      return;
-    }
+    console.log('Search effect triggered with query:', searchQuery);
+    console.log('Current allFoods count:', allFoods.length);
+    
+    // Create a new array reference to ensure React detects the change
+    const updateFilteredFoods = () => {
+      if (!searchQuery.trim()) {
+        console.log('No search query, showing all foods');
+        setFilteredFoods(prev => {
+          // Only update if the array content has actually changed
+          if (prev.length !== allFoods.length || 
+              prev.some((food, i) => food.id !== allFoods[i]?.id)) {
+            return [...allFoods];
+          }
+          return prev;
+        });
+        return;
+      }
 
-    const filtered = allFoods.filter(food => 
-      food.foodName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      food.restaurant?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+      const query = searchQuery.toLowerCase().trim();
+      const filtered = allFoods.filter(food => {
+        const nameMatch = food.foodName?.toLowerCase().includes(query);
+        const restaurantMatch = food.restaurant?.name?.toLowerCase().includes(query);
+        console.log(`Food: ${food.foodName}, Name Match: ${nameMatch}, Restaurant Match: ${restaurantMatch}`);
+        return nameMatch || restaurantMatch;
+      });
+      
+      console.log(`Search "${searchQuery}": found ${filtered.length} of ${allFoods.length} foods`);
+      
+      setFilteredFoods(prev => {
+        // Only update if the filtered results have actually changed
+        if (prev.length !== filtered.length || 
+            prev.some((food, i) => food.id !== filtered[i]?.id)) {
+          return [...filtered];
+        }
+        return prev;
+      });
+      
+      if (filtered.length === 0 && searchQuery) {
+        console.log('No results found for query:', searchQuery);
+        toast.error(`No meals found for "${searchQuery}"`);
+      }
+    };
     
-    setFilteredFoods(filtered);
-    console.log(`Search "${searchQuery}": found ${filtered.length} of ${allFoods.length} foods`);
-    
-    if (filtered.length === 0 && searchQuery) {
-      toast.error(`No meals found for "${searchQuery}"`);
-    }
+    // Use requestAnimationFrame to ensure state updates are batched
+    requestAnimationFrame(updateFilteredFoods);
   }, [searchQuery, allFoods]);
 
   const search = (query: string) => {

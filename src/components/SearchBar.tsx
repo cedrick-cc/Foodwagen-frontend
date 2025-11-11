@@ -17,15 +17,29 @@ export default function SearchBar() {
 
   // Debounced search
   useEffect(() => {
+    console.log('Local query changed:', localQuery);
+    console.log('Current search query in SearchBar:', searchQuery);
+    
     const timer = setTimeout(() => {
       if (localQuery !== searchQuery) {
         console.log('Triggering search with:', localQuery);
         search(localQuery);
+      } else {
+        console.log('Search query unchanged, skipping search');
       }
     }, 300);
     
-    return () => clearTimeout(timer);
+    return () => {
+      console.log('Clearing search timeout');
+      clearTimeout(timer);
+    };
   }, [localQuery, searchQuery, search]);
+  
+  // Force a re-render when searchQuery changes
+  useEffect(() => {
+    console.log('Search query prop changed in SearchBar:', searchQuery);
+    // This will force the component to re-render when the searchQuery prop changes
+  }, [searchQuery]);
 
   const handleFindMeal = () => {
     console.log('Find meal clicked with:', localQuery);
