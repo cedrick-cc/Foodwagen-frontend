@@ -60,25 +60,21 @@ src/
 
 
 ## How to Run Locally
-
-### 1. Clone the repo
 ```bash
+### 1. Clone the repo
 git clone https://github.com/cedrick-cc/Foodwagen-frontend.git
-cd Foodwagen-frontend```
+cd Foodwagen-frontend
 
 
 ### 2. Install dependencies
-```bash
-npm install```
+npm install
 
 
 ### 3. Run the development server
-```bash
-npm run dev```
+npm run dev
 
 
-### 4. Open in browser
-```
+### Open in browser
 [http://localhost:3000](http://localhost:3000)
 ```
 
