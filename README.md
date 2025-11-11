@@ -40,7 +40,7 @@
 
 ## Project Structure
 
-
+```
 src/
 ├── app/                # Next.js pages
 ├── components/         # Reusable UI components
@@ -55,7 +55,7 @@ src/
 │   ├── api.ts          # API client with normalization
 │   └── types.ts        # TypeScript interfaces
 └── public/             # Static assets
-
+```
 
 
 
